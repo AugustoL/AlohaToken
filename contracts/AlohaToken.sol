@@ -239,6 +239,7 @@ contract AlohaToken is ERC20, Ownable, ReentrancyGuard {
 
         bytes32 surfSessionHash = keccak256(
             abi.encodePacked(
+                sessionSurfers,
                 waves,
                 bestWaveSurfer,
                 kookSurfer,
@@ -462,6 +463,7 @@ contract AlohaToken is ERC20, Ownable, ReentrancyGuard {
 
         bytes32 surfSessionHash = keccak256(
             abi.encodePacked(
+                sessionSurfers,
                 waves,
                 bestWaveSurfer,
                 kookSurfer,

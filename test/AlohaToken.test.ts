@@ -123,7 +123,7 @@ describe("AlohaToken", function () {
       const signers = [addr1, addr2];
       const sessionTime = 1000000000;
       const signatures = await Promise.all(signers.map(async (signer) => {
-        const messageHash = ethers.solidityPackedKeccak256(["uint256[]", "bytes32", "bytes32", "uint256", "string"], [[5, 3], surfer1ID, surfer2ID, sessionTime, "QmSessionInfoHash"]);
+        const messageHash = ethers.solidityPackedKeccak256(["bytes32[]", "uint256[]", "bytes32", "bytes32", "uint256", "string"], [[surfer1ID,surfer2ID],[5, 3], surfer1ID, surfer2ID, sessionTime, "QmSessionInfoHash"]);
         const signature = await signer.signMessage(ethers.getBytes(messageHash));
         return signature;
       }));
@@ -147,7 +147,7 @@ describe("AlohaToken", function () {
       const signers = [addr1, addr2];
       const sessionTime = 1000000000;
       const signatures = await Promise.all(signers.map(async (signer) => {
-        const messageHash = ethers.solidityPackedKeccak256(["uint256[]", "bytes32", "bytes32", "uint256", "string"], [[5, 3], surfer1ID, surfer2ID, sessionTime, "QmSessionInfoHash"]);
+        const messageHash = ethers.solidityPackedKeccak256(["bytes32[]", "uint256[]", "bytes32", "bytes32", "uint256", "string"], [[surfer1ID,surfer2ID],[5, 3], surfer1ID, surfer2ID, sessionTime, "QmSessionInfoHash"]);
         const signature = await signer.signMessage(ethers.getBytes(messageHash));
         return signature;
       }));
@@ -169,7 +169,7 @@ describe("AlohaToken", function () {
       const secondSessionTime = 2;
 
       let signatures = await Promise.all(signers.map(async (signer) => {
-        const messageHash = ethers.solidityPackedKeccak256(["uint256[]", "bytes32", "bytes32", "uint256", "string"], [[5, 3], surfer1ID, surfer2ID, firstSessionTime, "QmSessionInfoHash"]);
+        const messageHash = ethers.solidityPackedKeccak256(["bytes32[]", "uint256[]", "bytes32", "bytes32", "uint256", "string"], [[surfer1ID,surfer2ID],[5, 3], surfer1ID, surfer2ID, firstSessionTime, "QmSessionInfoHash"]);
         const signature = await signer.signMessage(ethers.getBytes(messageHash));
         return signature;
       }));
@@ -178,7 +178,7 @@ describe("AlohaToken", function () {
 
 
       signatures = await Promise.all(signers.map(async (signer) => {
-        const messageHash = ethers.solidityPackedKeccak256(["uint256[]", "bytes32", "bytes32", "uint256", "string"], [[5, 3], surfer1ID, surfer2ID, secondSessionTime, "QmSessionInfoHash"]);
+        const messageHash = ethers.solidityPackedKeccak256(["bytes32[]", "uint256[]", "bytes32", "bytes32", "uint256", "string"], [[surfer1ID,surfer2ID],[5, 3], surfer1ID, surfer2ID, secondSessionTime, "QmSessionInfoHash"]);
         const signature = await signer.signMessage(ethers.getBytes(messageHash));
         return signature;
       }));
@@ -259,7 +259,7 @@ describe("AlohaToken", function () {
       const signers = [addr1, addr2];
       const sessionTime = 1000000000;
       const signatures = await Promise.all(signers.map(async (signer) => {
-        const messageHash = ethers.solidityPackedKeccak256(["uint256[]", "bytes32", "bytes32", "uint256", "string"], [[5, 3], surfer1ID, surfer2ID, sessionTime, "QmSessionInfoHash"]);
+        const messageHash = ethers.solidityPackedKeccak256(["bytes32[]", "uint256[]", "bytes32", "bytes32", "uint256", "string"], [[surfer1ID,surfer2ID],[5, 3], surfer1ID, surfer2ID, sessionTime, "QmSessionInfoHash"]);
 
         const signature = await signer.signMessage(ethers.getBytes(messageHash));
         return signature;
@@ -316,8 +316,8 @@ describe("AlohaToken", function () {
         [surfer1ID, surfer2ID, surfer3ID], [2, 1, 1], surfer1ID,surfer2ID, sessionTime, 0, "QmSeshHash"
       );
       const sessionHash = ethers.solidityPackedKeccak256(
-        ["uint256[]","bytes32","bytes32","uint256","string"],
-        [[2,1, 1],surfer1ID,surfer2ID,sessionTime,"QmSeshHash"]
+        ["bytes32[]","uint256[]","bytes32","bytes32","uint256","string"],
+        [[surfer1ID,surfer2ID,surfer3ID],[2,1,1],surfer1ID,surfer2ID,sessionTime,"QmSeshHash"]
       );
       // The address that created the session already approved it
       await expect(
@@ -347,7 +347,7 @@ describe("AlohaToken", function () {
       await ethers.provider.send("evm_mine", []);
       // approve by surfer2
       const hashX = ethers.solidityPackedKeccak256(
-        ["uint256[]","bytes32","bytes32","uint256","string"], [[1,1],bytes32null,bytes32null,sessionTime,"QmHashX"]
+        ["bytes32[]", "uint256[]","bytes32","bytes32","uint256","string"], [[surfer1ID,surfer2ID],[1,1],bytes32null,bytes32null,sessionTime,"QmHashX"]
       );
       await alohaToken.connect(addr2).approveSurfSession(hashX,1);
       // second time should revert
@@ -388,8 +388,8 @@ describe("AlohaToken", function () {
         infoHash
       );
       sessionHash = ethers.solidityPackedKeccak256(
-        ["uint256[]","bytes32","bytes32","uint256","string"],
-        [waves, surfer1ID,surfer2ID, sessionTime, infoHash]
+        ["bytes32[]","uint256[]","bytes32","bytes32","uint256","string"],
+        [[surfer1ID,surfer2ID],waves, surfer1ID,surfer2ID, sessionTime, infoHash]
       );
     });
 

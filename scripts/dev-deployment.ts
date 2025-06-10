@@ -10,6 +10,9 @@ export async function main() {
     pinataJwt: vars.get("PINATA_JWT"),
     pinataGateway: vars.get("PINATA_GATEWAY")
   })
+
+  const getId = (alias: string) =>
+    ethers.solidityPackedKeccak256(["string"], [alias]);
   
   let alohaToken: AlohaToken;
   let owner: HardhatEthersSigner;
@@ -17,9 +20,9 @@ export async function main() {
   let addr2: HardhatEthersSigner;
   let addr3: HardhatEthersSigner;
   let addr4: HardhatEthersSigner;
-  const augustoAddress = "0x6e0255A0ECc222a891f3EE8Cb7Bfc33aaD9f6071"; 
 
-  const augustoProfile = await pinata.upload.public.json({
+  const augustoProfile = {
+    id: getId("Viking"),
     name: "Augusto Lemble",
     alias: "Viking",
     birthdate: "1991-01-01",
@@ -27,9 +30,10 @@ export async function main() {
     country: "Argentina",
     city: "Mar del Plata",
     styles: ["Shortboard", "Longboard"],
-  });
+  };
 
-  const gonzaProfile = await pinata.upload.public.json({
+  const gonzaProfile = {
+    id: getId("GonzaHo"),
     name: "Gonzalo",
     alias: "GonzaHo",
     birthdate: "1991-01-01",
@@ -37,8 +41,9 @@ export async function main() {
     country: "Argentina",
     city: "Mar del Plata",
     styles: ["Longboard"],
-  });
-  const ezeProfile = await pinata.upload.public.json({
+  };
+  const ezeProfile = {
+    id: getId("Ezes"),
     name: "Ezequiel",
     alias: "Ezes",
     birthdate: "1991-01-01",
@@ -46,7 +51,11 @@ export async function main() {
     country: "Argentina",
     city: "Mar del Plata",
     styles: ["Shortboard", "Longboard"],
-  });
+  };
+
+  const augustoProfileIPFS = await pinata.upload.public.json(augustoProfile);
+  const gonzaProfileIPFS = await pinata.upload.public.json(gonzaProfile);
+  const ezeProfileIPFS = await pinata.upload.public.json(ezeProfile);
 
   [owner, addr1, addr2, addr3, addr4] = await ethers.getSigners();
 
@@ -54,15 +63,21 @@ export async function main() {
   const AlohaTokenFactory = await ethers.getContractFactory("AlohaToken");
   alohaToken = await AlohaTokenFactory.deploy(
     owner.address,
+    1,               // minApprovals
+    24 * 60 * 60,    // surferAddTimeInterval
+    24 * 60 * 60,    // sessionAddTimeInterval
     [addr1.address, addr2.address, addr3.address],
-    ["Viking", "GonzaHo", "Ezes"],
-    [augustoProfile.cid, gonzaProfile.cid, ezeProfile.cid],
+    [augustoProfile.id, gonzaProfile.id, ezeProfile.id],
+    [augustoProfileIPFS.cid, gonzaProfileIPFS.cid, ezeProfileIPFS.cid],
   ) as unknown as AlohaToken;
   
   await alohaToken.waitForDeployment();
   const tokenAddress = await alohaToken.getAddress();
   
   console.log("Aloha token deployed to:", tokenAddress);
+
+  await alohaToken.connect(addr1).approveSurfers([gonzaProfile.id, ezeProfile.id]);
+  await alohaToken.connect(addr2).approveSurfers([augustoProfile.id]);
 
   const surfSessionData = {
     date: "2023-10-01",
@@ -72,12 +87,12 @@ export async function main() {
       swell: "Medium",
       tide: "Low",
     },
-    surfers: [addr1.address, addr2.address, addr3.address],
+    surfers: [augustoProfile.id, gonzaProfile.id, ezeProfile.id],
     waves: [15,1,7],
     duration: 120,
     sessionType: "Free Surf",
-    bestSurfer: addr2.address,
-    kookSurfer: addr3.address,
+    bestSurfer: gonzaProfile.id,
+    kookSurfer: getId("Ezes"),
   };
   const surfSession = await pinata.upload.public.json(surfSessionData);
 
@@ -86,17 +101,17 @@ export async function main() {
   const signatures = await Promise.all(
     [addr1, addr2, addr3].map(async (signer) => {
       const messageHash = ethers.solidityPackedKeccak256(
-        ["address[]", "uint256[]", "address", "address", "uint256"],
-        [[addr1.address, addr2.address,addr3.address], [15,1,7], addr2.address, addr3.address, sessionTime]);
+        ["bytes32[]", "uint256[]", "bytes32", "bytes32", "uint256", "string"],
+        [[augustoProfile.id, gonzaProfile.id, ezeProfile.id], [15,1,7], gonzaProfile.id, ezeProfile.id, sessionTime, surfSession.cid]);
       const signature = await signer.signMessage(ethers.getBytes(messageHash));
     return signature;
   }));
 
-  await alohaToken.connect(addr1).addSurfSession(
-    [addr1.address, addr2.address,addr3.address],
+  await alohaToken.connect(addr1).addSurfSessionWithSignatures(
+    [augustoProfile.id, gonzaProfile.id, ezeProfile.id],
     [15,1,7],
-    addr2.address,
-    addr3.address,
+    gonzaProfile.id,
+    ezeProfile.id,
     sessionTime,
     signatures,
     surfSession.cid
