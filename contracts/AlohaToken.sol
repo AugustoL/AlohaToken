@@ -41,7 +41,8 @@ contract AlohaToken is ERC20, Ownable, ReentrancyGuard {
 
     struct Surfer {
         address owner;
-        address[] approvals;
+        string surferAlias;
+        bytes32[] approvals;
         string offchainInfoHash;
     }
 
@@ -79,7 +80,7 @@ contract AlohaToken is ERC20, Ownable, ReentrancyGuard {
      * @param _surferAddTimeInterval The time interval in seconds between adding new surfers.
      * @param _sessionAddTimeInterval The time interval in seconds between adding new sessions.
      * @param initialSurfersAddresses The addresses of the initial surfers.
-     * @param initialSurfersIDs The IDs of the initial surfers.
+     * @param initialSurfersAliases The alias of the initial surfers.
      * @param initialSurfersOffchainInfoHashes The IPFS hashes of the initial surfers’ profiles.
      */
     constructor(
@@ -88,7 +89,7 @@ contract AlohaToken is ERC20, Ownable, ReentrancyGuard {
         uint256 _surferAddTimeInterval,
         uint256 _sessionAddTimeInterval,
         address[] memory initialSurfersAddresses,
-        bytes32[] memory initialSurfersIDs,
+        string[] memory initialSurfersAliases,
         string[] memory initialSurfersOffchainInfoHashes
     ) ERC20("Aloha", "ALH") Ownable(initialOwner) {
         minApprovals = _minApprovals;
@@ -97,15 +98,17 @@ contract AlohaToken is ERC20, Ownable, ReentrancyGuard {
 
         // Add initial surfers
         for (uint256 i = 0; i < initialSurfersAddresses.length; i++) {
-            surfers[initialSurfersIDs[i]].owner = initialSurfersAddresses[
-                i
-            ];
-            surfers[initialSurfersIDs[i]]
+            bytes32 initialSurferID = hashString(
+                initialSurfersAliases[i]
+            );
+            surfers[initialSurferID].owner = initialSurfersAddresses[i];
+            surfers[initialSurferID].surferAlias = initialSurfersAliases[i];
+            surfers[initialSurferID]
                 .offchainInfoHash = initialSurfersOffchainInfoHashes[i];
             surferIDByAddress[
                 initialSurfersAddresses[i]
-            ] = initialSurfersIDs[i];
-            surfersList.push(initialSurfersIDs[i]);
+            ] = initialSurferID;
+            surfersList.push(initialSurferID);
         }
     }
 
@@ -140,6 +143,7 @@ contract AlohaToken is ERC20, Ownable, ReentrancyGuard {
         bytes32 surferID = hashString(surferAlias);
         surferIDByAddress[msg.sender] = surferID;
         surfers[surferID].owner = msg.sender;
+        surfers[surferID].surferAlias = surferAlias;
         surfers[surferID].offchainInfoHash = offchainInfoHash;
         surfersList.push(surferID);
         lastSurferAdded = block.timestamp;
@@ -160,7 +164,7 @@ contract AlohaToken is ERC20, Ownable, ReentrancyGuard {
             require(isSurferByID(toID), "Not a surfer");
             require(!approvals[senderID][toID], "Already approved");
             approvals[senderID][toID] = true;
-            surfers[toID].approvals.push(msg.sender);
+            surfers[toID].approvals.push(senderID);
             emit SurferApproved(senderID, toID);
         }
     }
@@ -180,24 +184,25 @@ contract AlohaToken is ERC20, Ownable, ReentrancyGuard {
             signers.length == signatures.length,
             "Signers and signatures length mismatch"
         );
-
+        
         for (uint256 i = 0; i < signers.length; i++) {
             address signer = ECDSA.recover(
                 MessageHashUtils.toEthSignedMessageHash(surferIDToApprove),
                 signatures[i]
             );
+            bytes32 signerID = surferIDByAddress[signers[i]];
 
             require(signer == signers[i], "Invalid signature");
             require(isSurferByAddress(signer), "Signer is not a surfer");
             require(
-                !approvals[surferIDByAddress[signer]][surferIDToApprove],
+                !approvals[signerID][surferIDToApprove],
                 "Already approved by this surfer"
             );
 
-            approvals[surferIDByAddress[signer]][
+            approvals[signerID][
                 surferIDToApprove
             ] = true;
-            surfers[surferIDToApprove].approvals.push(signer);
+            surfers[surferIDToApprove].approvals.push(signerID);
             emit SurferApproved(
                 surferIDByAddress[signer],
                 surferIDToApprove
@@ -711,14 +716,20 @@ contract AlohaToken is ERC20, Ownable, ReentrancyGuard {
     }
 
     /**
-     * @notice Retrieves the Surfer struct for a given address.
-     * @param surferAddress The address of the surfer.
-     * @return info The Surfer struct containing the surfer’s data.
+     * @notice Retrieves the Surfer struct for a given id.
+     * @param surferId The alias of the surfer.
+     * @return owner The address of the surfer.
+     * @return surferAlias The alias of the surfer.
+     * @return surferApprovals The list of approvals for the surfer.
+     * @return offchainInfoHash The IPFS hash of the surfer's profile.
      */
-    function getSurferByAddress(
-        address surferAddress
-    ) public view returns (Surfer memory info) {
-        return surfers[surferIDByAddress[surferAddress]];
+    function getSurfer(
+        bytes32 surferId
+    ) public view returns (address owner, string memory surferAlias, bytes32[] memory surferApprovals, string memory offchainInfoHash) {
+        return (surfers[surferId].owner,
+            surfers[surferId].surferAlias,
+            surfers[surferId].approvals,
+            surfers[surferId].offchainInfoHash);
     }
 
     /**
@@ -738,6 +749,14 @@ contract AlohaToken is ERC20, Ownable, ReentrancyGuard {
      */
     function getSurfSessions() external view returns (bytes32[] memory) {
         return surfSessionsList;
+    }
+
+    /**
+     * @notice Retrieves the list of surfers ids.
+     * @return getSurfersList An array of surfers id.
+     */
+    function getSurfersList() external view returns (bytes32[] memory) {
+        return surfersList;
     }
 
     /**

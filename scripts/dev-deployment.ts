@@ -30,6 +30,7 @@ export async function main() {
     country: "Argentina",
     city: "Mar del Plata",
     styles: ["Shortboard", "Longboard"],
+    surfboards: ["Shortboard 6'0 35L", "Midlength 6'10 44L"]
   };
 
   const gonzaProfile = {
@@ -41,6 +42,7 @@ export async function main() {
     country: "Argentina",
     city: "Mar del Plata",
     styles: ["Longboard"],
+    surfboards: ["Longboard 9'0 55L"]
   };
   const ezeProfile = {
     id: getId("Ezes"),
@@ -51,6 +53,7 @@ export async function main() {
     country: "Argentina",
     city: "Mar del Plata",
     styles: ["Shortboard", "Longboard"],
+    surfboards: ["Shortboard 6'0 35L", "Longboard 8'0 48L"]
   };
 
   const augustoProfileIPFS = await pinata.upload.public.json(augustoProfile);
@@ -67,7 +70,7 @@ export async function main() {
     24 * 60 * 60,    // surferAddTimeInterval
     24 * 60 * 60,    // sessionAddTimeInterval
     [addr1.address, addr2.address, addr3.address],
-    [augustoProfile.id, gonzaProfile.id, ezeProfile.id],
+    [augustoProfile.alias, gonzaProfile.alias, ezeProfile.alias],
     [augustoProfileIPFS.cid, gonzaProfileIPFS.cid, ezeProfileIPFS.cid],
   ) as unknown as AlohaToken;
   
@@ -80,11 +83,11 @@ export async function main() {
   await alohaToken.connect(addr2).approveSurfers([augustoProfile.id]);
 
   const surfSessionData = {
-    date: "2023-10-01",
+    date: "2024-10-01",
     location: "Playa Grande, Mar del Plata",
     conditions: {
-      wind: "Light",
-      swell: "Medium",
+      wind: "North - Light",
+      size: "1.5m",
       tide: "Low",
     },
     surfers: [augustoProfile.id, gonzaProfile.id, ezeProfile.id],

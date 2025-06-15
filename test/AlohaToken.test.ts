@@ -24,7 +24,7 @@ describe("AlohaToken", function () {
       24 * 60 * 60,    // surferAddTimeInterval
       24 * 60 * 60,    // sessionAddTimeInterval
       [addr1.address, addr2.address, addr3.address],
-      [surfer1ID, surfer2ID, surfer3ID],
+      ["Surfer1", "Surfer2", "Surfer3"],
       ["QmProfileHash1", "QmProfileHash2", "QmProfileHash3"]
     )) as AlohaToken;
 
@@ -71,7 +71,7 @@ describe("AlohaToken", function () {
         );
 
       const approvalsList = (await alohaToken.getSurferByID(surfer4ID)).approvals;
-      expect(approvalsList.length).to.equal(signers.length);
+      expect(approvalsList).to.deep.equal([surfer1ID, surfer2ID]);
 
       // check individual status using alias mapping
       for (const signer of signers) {
@@ -356,10 +356,13 @@ describe("AlohaToken", function () {
       ).to.be.revertedWith("Already approved");
     });
 
-    it("Should return surfer struct via getSurferByAddress and getSurfSession info", async function () {
-      const info = await alohaToken.getSurferByAddress(addr1.address);
+    it("Should return surfer struct via getSurfer and getSurfSession info", async function () {
+      const info = await alohaToken.getSurfer(surfer1ID);
       expect(info.owner).to.equal(addr1.address);
       expect(info.offchainInfoHash).to.equal("QmProfileHash1");
+      expect(info.surferAlias).to.equal("Surfer1");
+      expect(info.surferApprovals.length).to.equal(1);
+      expect(info.surferApprovals[0]).to.equal(surfer2ID);
 
       const sessions = await alohaToken.getSurfSessions();
       for (const h of sessions) {
