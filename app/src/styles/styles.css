@@ -1,0 +1,195 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f0f0f0;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3 {
+    color: #333;
+}
+
+.container {
+    width: 80%;
+    margin: auto;
+    overflow: hidden;
+}
+
+.header {
+    background: #35424a;
+    color: #ffffff;
+    padding: 20px 0;
+    text-align: center;
+}
+
+.button {
+    display: inline-block;
+    font-size: 16px;
+    color: #ffffff;
+    background: #e8491d;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.button:hover {
+    background: #c0392b;
+}
+
+.App {
+    text-align: center;
+    padding: 20px;
+    background-color: #eef2f3;
+}
+
+.App h1 {
+    color: #007bff;
+}
+
+.surf-container {
+    max-width: 600px;
+    margin: 20px auto;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
+.surf-container h2 {
+    text-align: center;
+    color: #333;
+}
+
+.surfer-table {
+    border-collapse: collapse;
+    width: 80%;
+    text-align: center;
+}
+
+.surfer-table th, .surfer-table td {
+    border: 1px solid black;
+    padding: 8px;
+}
+
+.surfer-table thead tr th {
+    border-top: none;
+}
+
+.surfer-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.surfer-table th:first-child, 
+.surfer-table td:first-child {
+    border-left: none;
+}
+
+.surfer-table th:last-child, 
+.surfer-table td:last-child {
+    border-right: none;
+}
+
+.navbar {
+    background-color: #333;
+    padding: 1em;
+    border-radius: 5px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.navbar ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    align-items: center;
+}
+
+.navbar li {
+    margin-right: 20px;
+}
+
+.navbar li a {
+    color: #fff;
+    text-decoration: none;
+    font-size: 16px;
+    transition: color 0.2s ease;
+}
+
+.navbar li a:hover {
+    color: #ddd;
+}
+
+.App-logo {
+    height: 40vmin;
+    pointer-events: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+    .App-logo {
+        animation: App-logo-spin infinite 20s linear;
+    }
+}
+
+.App-header {
+    background-color: #282c34;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-size: calc(10px + 2vmin);
+    color: white;
+}
+
+.App-link {
+    color: #61dafb;
+}
+
+@keyframes App-logo-spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+code {
+    font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
+}
+
+.form-group {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.form-label {
+    width: 150px;
+}
+
+.form-input,
+.form-select {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.form-button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    background: #e8491d;
+    color: #fff;
+}
+
