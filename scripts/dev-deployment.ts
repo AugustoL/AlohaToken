@@ -79,8 +79,8 @@ export async function main() {
   
   console.log("Aloha token deployed to:", tokenAddress);
 
-  await alohaToken.connect(addr1).approveSurfers([gonzaProfile.id, ezeProfile.id]);
-  await alohaToken.connect(addr2).approveSurfers([augustoProfile.id]);
+  await alohaToken.connect(addr1).approveSurfers([gonzaProfile.id]);
+  await alohaToken.connect(addr2).approveSurfers([augustoProfile.id, ezeProfile.id]);
 
   const surfSessionData = {
     date: "2024-10-01",
