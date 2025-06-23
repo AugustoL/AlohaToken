@@ -161,6 +161,7 @@ contract AlohaToken is ERC20, Ownable, ReentrancyGuard {
         require(surferIDsToApprove.length > 0, "Not enough approvals");
         for (uint i = 0; i < surferIDsToApprove.length; i++) {
             bytes32 toID = surferIDsToApprove[i];
+            require(senderID != toID, "Cant approve yourself");
             require(isSurferByID(toID), "Not a surfer");
             require(!approvals[senderID][toID], "Already approved");
             approvals[senderID][toID] = true;
