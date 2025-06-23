@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { fetchSessionsHashes } from '../contracts/AlohaToken/index';
+import { fetchSessionsHashes } from '../../contracts/AlohaToken/index';
+import { MinimalSurfSessionInfo } from '../../types/types';
+import Loading from '../utils/Loading';
 
 const SurfSessions = () => {
-    const [sessions, setSessions] = useState([]);
+    const [sessions, setSessions] = useState<MinimalSurfSessionInfo[]>([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -21,7 +23,7 @@ const SurfSessions = () => {
     }, []);
 
     if (loading) {
-        return (<div>Loading...</div>);
+        return <Loading/>;
     }
 
     return (
@@ -36,9 +38,9 @@ const SurfSessions = () => {
                 <tbody>
                     {sessions.map((session, index) => (
                         <tr key={index}>
-                            <td>{`${session.slice(0, 6)}...${session.slice(-6)}`}</td>
+                            <td>{`${session.id.slice(0, 6)}...${session.id.slice(-6)}`}</td>
                             <td>
-                                <Link to={`/session/${session}`}>View Details</Link>
+                                <Link to={`/session/${session.id}`}>View Details</Link>
                             </td>
                         </tr>
                     ))}

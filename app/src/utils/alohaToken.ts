@@ -1,10 +1,7 @@
-import web3 from "./web3";
-
-
 export const ALHfromWei = function(amount) {
-  return web3.utils.fromWei(amount, "ether");
+  return amount / Math.pow(10, 18);
 }
 
 export const ALHtoWei = function(amount) {
-  return web3.utils.toWei(amount, "ether");
+  return amount * Math.pow(10, 18);
 }

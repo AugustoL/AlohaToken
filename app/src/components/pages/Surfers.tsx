@@ -1,10 +1,13 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { fetchSurfers } from '../contracts/AlohaToken/index';
-import '../styles/styles.css';
+import { fetchSurfers } from '../../contracts/AlohaToken/index';
+import '../../styles/styles.css';
+import { ALHfromWei } from '../../utils/alohaToken';
+import { SurferInfo } from '../../types/types';
+import Loading from '../utils/Loading';
 
 const Surfers = () => {
-    const [surfers, setSurfers] = useState([]);
+    const [surfers, setSurfers] = useState<SurferInfo[]>([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -22,7 +25,7 @@ const Surfers = () => {
     }, [loading]);
 
     if (loading) {
-        return (<div>Loading...</div>);
+        return <Loading/>;
     }
 
     return (
@@ -42,7 +45,7 @@ const Surfers = () => {
                                 <Link to={`/surfer/${surfer.id}`}>{surfer.alias}</Link>
                             </td>
                             <td>{surfer.address}</td>
-                            <td>{surfer.balance}</td>
+                            <td>{ALHfromWei(surfer.balance)}</td>
                         </tr>
                     ))}
                 </tbody>

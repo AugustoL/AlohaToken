@@ -63,6 +63,38 @@ h1, h2, h3 {
     flex-direction: column;
 }
 
+.surfer-details {
+    align-items: flex-start;
+}
+
+.surfer-details h2 {
+    text-align: center;
+    width: 100%;
+}
+
+.surftag {
+    display: inline-block;
+    background-color: #007bff;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 5px;
+    margin: 5px;
+}
+
+.link-tag {
+    display: inline-block;
+    background-color: #c6faff;
+    color: rgb(28, 12, 210);
+    padding: 5px 10px;
+    border-radius: 5px;
+    margin: 5px;
+    text-decoration: none;
+}
+
+.link-tag:hover {
+    background-color: #a0e0ff;
+    color: rgb(0, 0, 139);
+}
 .surf-container h2 {
     text-align: center;
     color: #333;
@@ -193,3 +225,128 @@ code {
     color: #fff;
 }
 
+.addSurfer-form {
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 1rem;
+    box-sizing: border-box;
+}
+
+/* form container card */
+.surf-session-container {
+    max-width: 600px;
+    margin: 40px auto;
+    background-color: #fff;
+    padding: 24px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* centered heading */
+.surf-session-container h2 {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #333;
+}
+
+/* labels */
+.form-label {
+    width: 140px;
+    font-weight: 600;
+    margin-right: 12px;
+}
+
+/* inputs & selects */
+.form-input,
+.form-select {
+    flex: 1;
+    padding: 10px 12px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.form-input:focus,
+.form-select:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+    outline: none;
+}
+
+/* full-width primary button */
+.addSurfer-form .form-button {
+    display: block;
+    width: 100%;
+    margin-top: 24px;
+    padding: 12px;
+    background-color: #007bff;
+    border: none;
+    border-radius: 4px;
+    color: #fff;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.1s;
+}
+
+.addSurfer-form .form-button:hover {
+    background-color: #0056b3;
+    transform: translateY(-1px);
+}
+
+/* surfboards tags */
+.surfboard-list {
+    list-style: none;
+    margin: 0 0 1rem;
+    padding: 0;
+}
+.surfboard-list li {
+    display: inline-flex;
+    align-items: center;
+    background-color: #007bff;
+    color: white;
+    padding: 6px 10px;
+    border-radius: 4px;
+    margin: 4px;
+}
+.surfboard-list li button {
+    background: none;
+    border: none;
+    color: white;
+    margin-left: 8px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+/* Loading styles */
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 80vh;
+}
+
+.wave-loading {
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+}
+
+.wave {
+  width: 12px;
+  height: 12px;
+  margin: 0 6px;
+  background: #00aaff;
+  border-radius: 50%;
+  animation: wave 1s infinite ease-in-out;
+}
+
+.wave:nth-child(1) { animation-delay:   0s; }
+.wave:nth-child(2) { animation-delay: 0.2s; }
+.wave:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes wave {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-20px); }
+}
