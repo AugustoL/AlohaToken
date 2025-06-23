@@ -19,6 +19,7 @@
   "dependencies": {
     "@helia/json": "^4.0.3",
     "add": "^2.0.6",
+    "hardhat-ethernal": "^3.4.0",
     "pinata": "^2.1.0"
   }
 }

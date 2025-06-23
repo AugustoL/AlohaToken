@@ -1,5 +1,6 @@
 import { HardhatUserConfig } from "hardhat/config";
 import "@nomicfoundation/hardhat-toolbox";
+require('hardhat-ethernal');
 
 const config: HardhatUserConfig = {
   solidity: {
@@ -13,7 +14,15 @@ const config: HardhatUserConfig = {
   },
   networks: {
     // For local development
-    hardhat: {},
+    hardhat: {
+      accounts: {
+        mnemonic: "test test test test test test test test test test test junk",
+        path: "m/44'/60'/0'/0",
+        initialIndex: 0,
+        count: 20,
+        passphrase: "",
+      },
+    },
     // For testnet deployment (example for Sepolia)
     sepolia: {
       url: process.env.SEPOLIA_URL || "https://sepolia.infura.io/v3/YOUR-INFURA-PROJECT-ID",
@@ -33,6 +42,9 @@ const config: HardhatUserConfig = {
   // For Etherscan verification
   etherscan: {
     apiKey: process.env.ETHERSCAN_API_KEY || ""
+  },
+  ethernal: {
+    apiToken: process.env.ETHEREAL_API_KEY || ""
   }
 };
 
