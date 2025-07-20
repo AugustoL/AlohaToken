@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import { registerSurfer } from '../../contracts/AlohaToken';
+import { useNotify } from '../../hooks/useNotify';
 
 function RegisterSurfer() {
   const [formData, setFormData] = useState<{
@@ -22,6 +24,7 @@ function RegisterSurfer() {
   });
 
   const [surfboardInput, setSurfboardInput] = useState('');
+  const notify = useNotify();
 
   const handleBoardKeyDown = (e) => {
     if (e.key === 'Enter') {
@@ -63,8 +66,36 @@ function RegisterSurfer() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log(formData);
-    // ...handle form submission...
+    try {
+      registerSurfer(
+        formData.name,
+        formData.alias,
+        formData.country,
+        formData.city,
+        formData.birthdate,
+        formData.stance,
+        formData.surfStyle,
+        formData.surfboards
+      );
+      notify.success(`Successfully registered surfer: ${formData.alias}`);
+    } catch (error) {
+      console.error("Error registering surfer:", error);
+      notify.error(`Error registering surfer`);
+    }
+  };
+
+  const fillTestData = () => {
+    setFormData({
+      name: 'John Doe',
+      alias: 'Wave Rider',
+      country: 'USA',
+      city: 'San Diego',
+      birthdate: '1990-01-01',
+      stance: 'regular',
+      surfStyle: ['shortboard', 'longboard'],
+      surfboards: ['Shortboard 6\'0 33L', 'Longboard 9\'0 50L'],
+    });
+    setSurfboardInput('');
   };
 
   return (
@@ -174,6 +205,9 @@ function RegisterSurfer() {
         )}
         <button type="submit" className="form-button">
           Register
+        </button>
+        <button type="button" className="form-button" onClick={fillTestData}>
+          Test
         </button>
       </form>
     </div>

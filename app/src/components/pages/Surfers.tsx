@@ -1,15 +1,17 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { fetchSurfers } from '../../contracts/AlohaToken/index';
+import { fetchSurfers } from '../../contracts/AlohaToken';
 import '../../styles/styles.css';
 import { ALHfromWei } from '../../utils/alohaToken';
-import { SurferInfo } from '../../types/types';
-import Loading from '../utils/Loading';
+import { SurferInfo } from '../../types/aloha';
+import Loading from '../common/Loading';
+import { useNotify } from '../../hooks/useNotify';
 
 const Surfers = () => {
     const [surfers, setSurfers] = useState<SurferInfo[]>([]);
     const [loading, setLoading] = useState(true);
-
+    const notify = useNotify();
+    
     useEffect(() => {
         const fetchData = async () => {
             try {
@@ -17,12 +19,13 @@ const Surfers = () => {
                 setSurfers(surfersList);
             } catch (error) {
                 console.error("Error fetching surfers:", error);
+                notify.error("Failed to fetch surfers. Please try again.");
             } finally {
                 setLoading(false);
             }
         };
         fetchData();
-    }, [loading]);
+    }, []);
 
     if (loading) {
         return <Loading/>;

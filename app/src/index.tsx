@@ -8,14 +8,10 @@ import {
   QueryClientProvider,
   QueryClient,
 } from "@tanstack/react-query";
-import { config } from './config';
+import { networkConfig } from './utils/networkConfig';
 import App from './App';
-
-declare module 'wagmi' {
-  interface Register {
-    config: typeof config
-  }
-}
+import { NotificationProvider } from './context/NotificationContext';
+import { AppContextProvider } from './context/AppContextProvider';
 
 const queryClient = new QueryClient();
 
@@ -25,10 +21,14 @@ const root = ReactDOM.createRoot(
 
 root.render(
   <React.StrictMode>
-    <WagmiProvider config={config}>
+    <WagmiProvider config={networkConfig}>
       <QueryClientProvider client={queryClient}>
         <RainbowKitProvider>
-          <App />
+          <NotificationProvider>
+            <AppContextProvider>
+              <App />
+            </AppContextProvider>
+          </NotificationProvider>
         </RainbowKitProvider>
       </QueryClientProvider>
     </WagmiProvider>

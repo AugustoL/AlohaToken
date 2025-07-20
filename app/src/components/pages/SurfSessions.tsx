@@ -1,20 +1,28 @@
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { fetchSessionsHashes } from '../../contracts/AlohaToken/index';
-import { MinimalSurfSessionInfo } from '../../types/types';
-import Loading from '../utils/Loading';
+import { fetchSessionsHashes, getSessionsCreatedBySurferAndNotFinalized } from '../../contracts/AlohaToken';
+import { MinimalSurfSessionInfo } from '../../types/aloha';
+import Loading from '../common/Loading';
+import { useNotify } from '../../hooks/useNotify';
+import { AppContext } from '../../context/AppContextProvider';
 
 const SurfSessions = () => {
     const [sessions, setSessions] = useState<MinimalSurfSessionInfo[]>([]);
     const [loading, setLoading] = useState(true);
+    const notify = useNotify();
+    const { surferAccount } = useContext(AppContext);
 
     useEffect(() => {
         const fetchSessions = async () => {
             try {
                 const sessionHashes = await fetchSessionsHashes();
+                if (surferAccount) {
+                    const sessionsWaiting = await getSessionsCreatedBySurferAndNotFinalized(surferAccount.id);
+                    console.log("Sessions waiting for surfer approval:", sessionsWaiting);
+                }
                 setSessions(sessionHashes);
             } catch (error) {
-                console.error("Error fetching surf sessions:", error);
+                notify.error("Failed to fetch surf sessions. Please try again.");
             } finally {
                 setLoading(false);
             }

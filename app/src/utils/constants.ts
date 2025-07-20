@@ -1,1 +1,1 @@
-export const pinataURL = "https://lavender-traditional-vole-938.mypinata.cloud/ipfs/";
+export const filebaseURL = "https://hard-fuchsia-bee.myfilebase.com/ipfs/";

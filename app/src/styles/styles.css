@@ -350,3 +350,218 @@ code {
   0%, 100% { transform: translateY(0); }
   50%      { transform: translateY(-20px); }
 }
+
+.icon {
+    width: 25px;
+    height: 25px;
+    display: inline-block;
+    vertical-align: middle;
+}
+
+/* Notification Styles */
+.notification-container {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 10000;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-width: fit-content;
+    width: 90%;
+}
+
+.notification {
+    padding: 16px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    animation: slideIn 0.5s ease-out;
+    border-left: 4px solid;
+    background: white;
+    transform: translateY(0); /* Ensures stable positioning after animation */
+}
+
+.notification--success {
+    border-left-color: #22c55e;
+    background-color: #f0fdf4;
+}
+
+.notification--warning {
+    border-left-color: #f59e0b;
+    background-color: #fffbeb;
+}
+
+.notification--error {
+    border-left-color: #ef4444;
+    background-color: #fef2f2;
+}
+
+.notification__content {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 12px;
+}
+
+.notification__message {
+    flex: 1;
+    font-size: 14px;
+    line-height: 1.4;
+    color: #374151;
+}
+
+.notification--success .notification__message {
+    color: #166534;
+}
+
+.notification--warning .notification__message {
+    color: #92400e;
+}
+
+.notification--error .notification__message {
+    color: #991b1b;
+}
+
+.notification__close {
+    background: none;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    color: #6b7280;
+    padding: 0;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+}
+
+.notification__close:hover {
+    background-color: rgba(0, 0, 0, 0.1);
+    color: #374151;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateY(-20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+@media (max-width: 768px) {
+    .notification-container {
+        width: 95%;
+        max-width: none;
+    }
+    
+    .notification {
+        padding: 12px;
+    }
+}
+
+/* History Page Styles */
+.filter-controls {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+  padding: 15px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+}
+
+.filter-controls .form-select {
+  width: auto;
+  margin-left: 10px;
+}
+
+.history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.history-item {
+  background: white;
+  border-radius: 8px;
+  padding: 16px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border-left: 4px solid #e0e0e0;
+  transition: box-shadow 0.2s ease;
+}
+
+.history-item:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.history-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.history-type {
+  display: flex;
+  align-items: center;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.history-timestamp {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.history-details {
+  font-size: 14px;
+  color: #374151;
+  margin-bottom: 8px;
+  line-height: 1.4;
+}
+
+.history-tx {
+  font-size: 12px;
+  color: #6b7280;
+  padding-top: 8px;
+  border-top: 1px solid #f3f4f6;
+}
+
+.history-tx code {
+  background-color: #f3f4f6;
+  padding: 2px 4px;
+  border-radius: 4px;
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+}
+
+/* Color classes for different action types */
+.text-green-600 { color: #16a34a; }
+.text-blue-600 { color: #2563eb; }
+.text-yellow-600 { color: #ca8a04; }
+.text-purple-600 { color: #9333ea; }
+.text-indigo-600 { color: #4f46e5; }
+.text-gray-600 { color: #4b5563; }
+
+/* Username tag styling */
+.username-tag {
+  display: inline-flex;
+  align-items: center;
+  background-color: #007bff;
+  color: white !important;
+  padding: 8px 9px;
+  border-radius: 10px;
+  text-decoration: none;
+  font-size: 14px;
+  transition: background-color 0.2s ease;
+}
+
+.username-tag:hover {
+  background-color: #0056b3;
+  color: white !important;
+}

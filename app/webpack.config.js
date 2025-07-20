@@ -1,6 +1,7 @@
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const DotenvWebpackPlugin = require('dotenv-webpack');
+const webpack = require('webpack');
 
 module.exports = {
   entry: path.resolve(__dirname, 'src', 'index.tsx'),
@@ -14,7 +15,9 @@ module.exports = {
     static: path.resolve(__dirname, 'public'),
     historyApiFallback: true,
     port: 3000,
-    open: true
+    open: true,
+    hot: true,
+    liveReload: false
   },
   module: {
     rules: [
@@ -33,6 +36,7 @@ module.exports = {
         use: ['style-loader', 'css-loader']
       }
     ]
+    
   },
   resolve: {
     extensions: ['.tsx', '.ts', '.js', '.jsx']
@@ -42,5 +46,6 @@ module.exports = {
       template: path.resolve(__dirname, 'public', 'index.html')
     }),
     new DotenvWebpackPlugin(),
+    new webpack.HotModuleReplacementPlugin(),
   ]
 };

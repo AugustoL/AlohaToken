@@ -3,23 +3,19 @@ import { useParams } from 'react-router-dom';
 import '../../styles/styles.css';
 import { fetchSurfer, approveSurfers, fetchSurferByAddress } from '../../contracts/AlohaToken';
 import { ALHfromWei } from '../../utils/alohaToken';
-import { SurferInfo } from '../../types/types';
-import { useAccount } from 'wagmi';
-import Loading from '../utils/Loading';
+import { SurferInfo } from '../../types/aloha';
+import Loading from '../common/Loading';
+import { useNotify } from '../../hooks/useNotify';
+import { AppContext } from '../../context/AppContextProvider';
 
 const Surfer = () => {
   const { surferID } = useParams();
   const [surferInfo, setSurferInfo] = useState({} as SurferInfo);
   const [loading, setLoading] = useState(true);
-  const account = useAccount();
-  const [surferAccount, setSurferAccount] = useState({} as SurferInfo);
+  const { surferAccount } = useContext(AppContext);
+  const notify = useNotify();
 
   useEffect(() => {
-    if (account.address) {
-      fetchSurferByAddress(account.address, {fetchBalance: true, fetchApprovals: true, fetchOffchainInfo: true}).then((info) => {
-        setSurferAccount(info);
-      });
-    }
     if (surferID) {
       fetchSurfer(surferID, {fetchBalance: true, fetchApprovals: true, fetchOffchainInfo: true}).then((info) => {
         setSurferInfo(info);
@@ -34,10 +30,10 @@ const Surfer = () => {
       try {
         await approveSurfers([surferID]);
         console.log("Approve surfer action triggered for:", surferID);
-        alert("Surfer approved successfully!");
+        notify.success("Surfer approved successfully!");
       } catch (error) {
         console.error("Error approving surfer:", error);
-        alert("Failed to approve surfer.");
+        notify.error("Failed to approve surfer");
       }
     };
   };
