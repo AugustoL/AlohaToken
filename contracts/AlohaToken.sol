@@ -211,7 +211,7 @@ contract AlohaToken is ERC20, Ownable, ReentrancyGuard {
         }
     }
 
-    /**
+    /*
      * @dev Adds a surf session.
      * @param sessionSurfers The IDs of the surfers in the session.
      * @param waves The number of waves ridden by each surfer.
@@ -227,7 +227,6 @@ contract AlohaToken is ERC20, Ownable, ReentrancyGuard {
         bytes32 bestWaveSurfer,
         bytes32 kookSurfer,
         uint256 sessionTime,
-        uint256 surferApprovalIndex,
         string memory offchainInfoHash
     ) external onlySurfer nonReentrant {
         require(
@@ -235,8 +234,8 @@ contract AlohaToken is ERC20, Ownable, ReentrancyGuard {
             "Surfers and waves length mismatch"
         );
         require(
-            surfers[sessionSurfers[surferApprovalIndex]].owner == msg.sender,
-            "Not a surfer in the session"
+            surfers[sessionSurfers[0]].owner == msg.sender,
+            "First surfer should be the sender"
         );
         require(
             sessionTime < block.timestamp,
@@ -270,7 +269,7 @@ contract AlohaToken is ERC20, Ownable, ReentrancyGuard {
             approvals: new bool[](sessionSurfers.length),
             totalApprovals: 1
         });
-        surfSessions[surfSessionHash].approvals[surferApprovalIndex] = true;
+        surfSessions[surfSessionHash].approvals[0] = true;
 
         emit SurfSessionCreated(surfSessionHash);
     }
