@@ -4,7 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev-app": "sh scripts/dev-node.sh",
+    "test": "npx hardhat test",
+    "test:coverage": "npx hardhat coverage",
+    "compile": "npx hardhat compile"
   },
   "keywords": [],
   "author": "",
@@ -17,8 +20,8 @@
     "prettier-plugin-solidity": "^2.0.0"
   },
   "dependencies": {
-    "@helia/json": "^4.0.3",
     "add": "^2.0.6",
+    "dotenv": "^17.2.0",
     "hardhat-ethernal": "^3.4.0",
     "pinata": "^2.1.0"
   }

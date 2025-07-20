@@ -1,15 +1,27 @@
 import { HardhatEthersSigner } from "@nomicfoundation/hardhat-ethers/signers";
-import env, { ethers } from "hardhat";
+import { ethers } from "hardhat";
 import { AlohaToken } from "../typechain-types";
-import { PinataSDK } from "pinata";
-const { vars } = require("hardhat/config");
 
 export async function main() {
-  
-  const pinata = new PinataSDK({
-    pinataJwt: vars.get("PINATA_JWT"),
-    pinataGateway: vars.get("PINATA_GATEWAY")
-  })
+
+  const uploadToIPFS = async (data: any): Promise<string> => {
+    const blob = new Blob([JSON.stringify(data)], { type: "application/json" });
+    const file = new File([blob], "data.json", { type: "application/json" });
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const filebaseApiKey = process.env.FILEBASE_API_KEY;
+    const res = await fetch('https://rpc.filebase.io/api/v0/add', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${filebaseApiKey}`,
+      },
+      body: formData,
+    });
+    if (!res.ok) throw new Error(`IPFS upload failed: ${res.statusText}`);
+    const json = await res.json();
+    return json.Hash;
+  };
 
   const getId = (alias: string) =>
     ethers.solidityPackedKeccak256(["string"], [alias]);
@@ -56,9 +68,9 @@ export async function main() {
     surfboards: ["Shortboard 6'0 35L", "Longboard 8'0 48L"]
   };
 
-  const augustoProfileIPFS = await pinata.upload.public.json(augustoProfile);
-  const gonzaProfileIPFS = await pinata.upload.public.json(gonzaProfile);
-  const ezeProfileIPFS = await pinata.upload.public.json(ezeProfile);
+  const augustoProfileIPFS = await uploadToIPFS(augustoProfile);
+  const gonzaProfileIPFS = await uploadToIPFS(gonzaProfile);
+  const ezeProfileIPFS = await uploadToIPFS(ezeProfile);
 
   [owner, addr1, addr2, addr3, addr4] = await ethers.getSigners();
 
@@ -67,11 +79,11 @@ export async function main() {
   alohaToken = await AlohaTokenFactory.deploy(
     owner.address,
     1,               // minApprovals
-    24 * 60 * 60,    // surferAddTimeInterval
-    24 * 60 * 60,    // sessionAddTimeInterval
+    60,    // surferAddTimeInterval
+    60,    // sessionAddTimeInterval
     [addr1.address, addr2.address, addr3.address],
     [augustoProfile.alias, gonzaProfile.alias, ezeProfile.alias],
-    [augustoProfileIPFS.cid, gonzaProfileIPFS.cid, ezeProfileIPFS.cid],
+    [augustoProfileIPFS, gonzaProfileIPFS, ezeProfileIPFS],
   ) as unknown as AlohaToken;
   
   await alohaToken.waitForDeployment();
@@ -83,21 +95,27 @@ export async function main() {
   await alohaToken.connect(addr2).approveSurfers([augustoProfile.id, ezeProfile.id]);
 
   const surfSessionData = {
-    date: "2024-10-01",
-    location: "Playa Grande, Mar del Plata",
-    conditions: {
-      wind: "North - Light",
-      size: "1.5m",
-      tide: "Low",
-    },
-    surfers: [augustoProfile.id, gonzaProfile.id, ezeProfile.id],
+    surfers: [
+      { id: augustoProfile.id, alias: augustoProfile.alias},
+      { id: gonzaProfile.id, alias: gonzaProfile.alias},
+      { id: ezeProfile.id, alias: ezeProfile.alias},
+    ],
     waves: [15,1,7],
-    duration: 120,
-    sessionType: "Free Surf",
     bestSurfer: gonzaProfile.id,
-    kookSurfer: getId("Ezes"),
+    kookSurfer: ezeProfile.id,
+    offchainInfo: {
+      sessionType: "Free Surf",
+      conditions: {
+        wind: "North - Light",
+        size: "1.5m",
+        tide: "Low",
+      },
+      date: "2024-10-01",
+      location: "Playa Grande, Mar del Plata",
+      duration: 120,
+    }
   };
-  const surfSession = await pinata.upload.public.json(surfSessionData);
+  const surfSessionHash = await uploadToIPFS(surfSessionData);
 
   //get unix time of 10 of march
   const sessionTime = Math.floor((new Date("2024-10-01")).getTime() / 1000);
@@ -105,7 +123,7 @@ export async function main() {
     [addr1, addr2, addr3].map(async (signer) => {
       const messageHash = ethers.solidityPackedKeccak256(
         ["bytes32[]", "uint256[]", "bytes32", "bytes32", "uint256", "string"],
-        [[augustoProfile.id, gonzaProfile.id, ezeProfile.id], [15,1,7], gonzaProfile.id, ezeProfile.id, sessionTime, surfSession.cid]);
+        [[augustoProfile.id, gonzaProfile.id, ezeProfile.id], [15,1,7], gonzaProfile.id, ezeProfile.id, sessionTime, surfSessionHash]);
       const signature = await signer.signMessage(ethers.getBytes(messageHash));
     return signature;
   }));
@@ -117,7 +135,7 @@ export async function main() {
     ezeProfile.id,
     sessionTime,
     signatures,
-    surfSession.cid
+    surfSessionHash
   );
 };
 

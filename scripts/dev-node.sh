@@ -13,18 +13,21 @@ stop_hardhat_node() {
 }
 
 # Start the Hardhat node in the background and redirect logs to the console
-npx hardhat node &> logs/hardhat_node.log &
+npx hardhat node &
 
 # Trap EXIT signal to ensure the Hardhat node is stopped
 trap stop_hardhat_node EXIT
 
+# Compile contracts and copy the AlohaToken.json to the app directory
 npx hardhat compile
-cp artifacts/contracts/AlohaToken.sol/AlohaToken.json app/src/contracts/AlohaToken/contract.json
+cp artifacts/contracts/AlohaToken.sol/AlohaToken.json app/src/contracts/AlohaToken.json
 
 # Run the Hardhat dev script and show logs
-npx hardhat --network localhost run scripts/dev-deployment.ts &> logs/dev-deployment.log
+npx hardhat --network localhost run scripts/dev-deployment.ts
 
-cat logs/dev-deployment.log
+cd app
+
+npm start
 
 # Ensure the Hardhat node is stopped after the deploy script finishes
 stop_hardhat_node

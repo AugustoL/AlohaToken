@@ -311,9 +311,11 @@ describe("AlohaToken", function () {
 
     it("Should add & finalize a surf session via addSurfSession + approveSurfSession", async function () {
       // prepare a 3-surfer session
-      const sessionTime = (await ethers.provider.getBlock("latest")).timestamp - 1;
+      const latestBlock = await ethers.provider.getBlock("latest");
+      if (!latestBlock) throw new Error("Failed to fetch latest block");
+      const sessionTime = latestBlock.timestamp - 1;
       await alohaToken.connect(addr1).addSurfSession(
-        [surfer1ID, surfer2ID, surfer3ID], [2, 1, 1], surfer1ID,surfer2ID, sessionTime, 0, "QmSeshHash"
+        [surfer1ID, surfer2ID, surfer3ID], [2, 1, 1], surfer1ID, surfer2ID, sessionTime, "QmSeshHash"
       );
       const sessionHash = ethers.solidityPackedKeccak256(
         ["bytes32[]","uint256[]","bytes32","bytes32","uint256","string"],
@@ -336,11 +338,13 @@ describe("AlohaToken", function () {
     });
 
     it("Should revert approveSurfSession twice for same index", async function () {
-      const sessionTime = (await ethers.provider.getBlock("latest")).timestamp - 1;
+      const latestBlock = await ethers.provider.getBlock("latest");
+      if (!latestBlock) throw new Error("Failed to fetch latest block");
+      const sessionTime = latestBlock.timestamp - 1;
       // new session with only addr1 approving
       const bytes32null = ethers.encodeBytes32String("");
       await alohaToken.connect(addr1).addSurfSession(
-        [surfer1ID,surfer2ID], [1,1], bytes32null, bytes32null, sessionTime, 0, "QmHashX"
+        [surfer1ID,surfer2ID], [1,1], bytes32null, bytes32null, sessionTime, "QmHashX"
       );
       // fast-forward
       await ethers.provider.send("evm_increaseTime", [24 * 60 * 60]);
@@ -382,12 +386,13 @@ describe("AlohaToken", function () {
 
     beforeEach(async function () {
       // build a session with one automatic approval (index 0 by addr1)
-      sessionTime = (await ethers.provider.getBlock("latest")).timestamp - 1;
+      const latestBlock = await ethers.provider.getBlock("latest");
+      if (!latestBlock) throw new Error("Failed to fetch latest block");
+      sessionTime = latestBlock.timestamp - 1;
       await alohaToken.connect(addr1).addSurfSession(
         [surfer1ID,surfer2ID],
         waves,
         surfer1ID,surfer2ID, sessionTime,
-        0,
         infoHash
       );
       sessionHash = ethers.solidityPackedKeccak256(
