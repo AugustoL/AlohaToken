@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev-app": "sh scripts/dev-node.sh",
+    "start": "sh scripts/dev-node.sh",
     "test": "npx hardhat test",
     "test:coverage": "npx hardhat coverage",
     "compile": "npx hardhat compile"
