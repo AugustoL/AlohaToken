@@ -3,14 +3,16 @@ import { ConnectButton } from '@rainbow-me/rainbowkit';
 const ConnectWallet = () => {
 
   return (
-    <div className="surf-container text-center">
+    <div className="connect-wallet-content">
       <h2>Connect an Ethereum wallet to use Aloha</h2>
-      <ConnectButton
-        accountStatus={{
-          smallScreen: 'avatar',
-          largeScreen: 'full',
-        }}
-      />
+      <div className="connect-button-wrapper">
+        <ConnectButton
+          accountStatus={{
+            smallScreen: 'avatar',
+            largeScreen: 'full',
+          }}
+        />
+      </div>
     </div>
   );
 };

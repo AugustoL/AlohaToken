@@ -25,7 +25,7 @@ const Navbar = () => {
         <li>
           {surferAccount &&
             <Link to={`/surfer/${surferAccount.id}`} className="username-tag">
-              {surferAccount.alias} <SurferIcon/>
+              {surferAccount.alias} 🏄‍♂️
             </Link>
           }
         </li>

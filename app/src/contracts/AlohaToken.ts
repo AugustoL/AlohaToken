@@ -1,5 +1,5 @@
 import AlohaTokenJson from './AlohaToken.json';
-import { MinimalSurfSessionInfo, SurferInfo, SurfSession, SurferInfoOffchain } from '../types/aloha';
+import { MinimalSurfSessionInfo, SurferInfo, SurfSession, SurferInfoOffchain, MinimalSurferInfo } from '../types/aloha';
 import { Abi } from 'viem';
 import { readContract, writeContract, getAccount, getPublicClient } from '@wagmi/core'
 import { networkConfig } from '../utils/networkConfig';
@@ -10,11 +10,12 @@ export interface HistoryAction {
   id: string;
   type: 'session_added' | 'session_approved_by_surfer' | 'session_finalized' | 'surfer_approved' | 'approval_received' | 'surfer_added';
   timestamp: Date;
-  actor: string; // The surfer who performed the action
+  actor?: MinimalSurferInfo; // The surfer who performed the action
   target?: string; // The target of the action (another surfer, session, etc.)
   details: string;
   txHash?: string;
   blockNumber: number;
+  sessionId?: string; // Session hash for session-related actions
   rawLog: any; // Raw log data for debugging
 }
 
@@ -238,14 +239,6 @@ export const addSurfSession = async (
   return session.id;
 }
 
-export const getSessionsCreatedBySurferAndNotFinalized = async (surferId: string): Promise<MinimalSurfSessionInfo[]> => {
-  const sessionsCreated = await fetchContractHistory(surferId, 1000, [ "SurfSessionCreated" ]);
-  const sessionsFinalized = await fetchContractHistory('0x0000000000000000000000000000000000000000', 1000, [ "SurfSessionFinalized" ]);
-
-  console.log("Sessions Created:", sessionsCreated);
-  console.log("Sessions Finalized:", sessionsFinalized);
-  return [];
-}
 /**
  * Fetches and parses all events from the AlohaToken contract
  * @param targetUser - Address to filter events for (0x0 means all users)
@@ -311,7 +304,7 @@ export const fetchContractHistory = async (
     // Filter by target user if specified
     if (targetUser !== '0x0000000000000000000000000000000000000000') {
       return historyActions.filter(action => 
-        action.actor.toLowerCase() === targetUser.toLowerCase() || 
+        action.actor.id.toLowerCase() === targetUser.toLowerCase() || 
         action.target?.toLowerCase() === targetUser.toLowerCase()
       );
     }
@@ -338,7 +331,7 @@ async function parseSurferAddedEvent(log: any, timestamp: Date): Promise<History
       id: `${log.transactionHash}-${log.logIndex}`,
       type: 'surfer_added',
       timestamp,
-      actor: surferInfo.alias,
+      actor: surferInfo,
       details: `Registered as a new surfer`,
       txHash: log.transactionHash,
       blockNumber: Number(log.blockNumber),
@@ -350,7 +343,7 @@ async function parseSurferAddedEvent(log: any, timestamp: Date): Promise<History
       id: `${log.transactionHash}-${log.logIndex}`,
       type: 'surfer_added',
       timestamp,
-      actor: surferID.slice(0, 10) + '...',
+      actor: null,
       details: `Registered as a new surfer`,
       txHash: log.transactionHash,
       blockNumber: Number(log.blockNumber),
@@ -372,7 +365,7 @@ async function parseSurferApprovedEvent(log: any, timestamp: Date): Promise<Hist
       id: `${log.transactionHash}-${log.logIndex}`,
       type: 'surfer_approved',
       timestamp,
-      actor: fromSurfer.alias,
+      actor: fromSurfer,
       target: toSurfer.alias,
       details: `Approved new surfer: ${toSurfer.alias}`,
       txHash: log.transactionHash,
@@ -385,8 +378,8 @@ async function parseSurferApprovedEvent(log: any, timestamp: Date): Promise<Hist
       id: `${log.transactionHash}-${log.logIndex}`,
       type: 'surfer_approved',
       timestamp,
-      actor: fromID.slice(0, 10) + '...',
-      target: toID.slice(0, 10) + '...',
+      actor: null,
+      target: toID,
       details: `Approved new surfer`,
       txHash: log.transactionHash,
       blockNumber: Number(log.blockNumber),
@@ -408,11 +401,12 @@ async function parseSurfSessionCreatedEvent(log: any, timestamp: Date): Promise<
       id: `${log.transactionHash}-${log.logIndex}`,
       type: 'session_added',
       timestamp,
-      actor: creatorSurfer.alias,
-      target: sessionHash.slice(0, 10) + '...',
+      actor: creatorSurfer,
+      target: sessionHash,
       details: `Created a new surf session with ${sessionInfo.surfers.length} surfers`,
       txHash: log.transactionHash,
       blockNumber: Number(log.blockNumber),
+      sessionId: sessionHash,
       rawLog: log
     };
   } catch (error) {
@@ -421,11 +415,12 @@ async function parseSurfSessionCreatedEvent(log: any, timestamp: Date): Promise<
       id: `${log.transactionHash}-${log.logIndex}`,
       type: 'session_added',
       timestamp,
-      actor: 'Unknown',
-      target: sessionHash.slice(0, 10) + '...',
+      actor: null,
+      target: sessionHash,
       details: `Created a new surf session`,
       txHash: log.transactionHash,
       blockNumber: Number(log.blockNumber),
+      sessionId: sessionHash,
       rawLog: log
     };
   }
@@ -443,11 +438,12 @@ async function parseSurfSessionApprovedEvent(log: any, timestamp: Date): Promise
       id: `${log.transactionHash}-${log.logIndex}`,
       type: 'session_approved_by_surfer',
       timestamp,
-      actor: surferInfo.alias,
-      target: sessionHash.slice(0, 10) + '...',
+      actor: surferInfo,
+      target: sessionHash,
       details: `Approved surf session`,
       txHash: log.transactionHash,
       blockNumber: Number(log.blockNumber),
+      sessionId: sessionHash,
       rawLog: log
     };
   } catch (error) {
@@ -456,11 +452,12 @@ async function parseSurfSessionApprovedEvent(log: any, timestamp: Date): Promise
       id: `${log.transactionHash}-${log.logIndex}`,
       type: 'session_approved_by_surfer',
       timestamp,
-      actor: surferID.slice(0, 10) + '...',
-      target: sessionHash.slice(0, 10) + '...',
+      actor: null,
+      target: sessionHash,
       details: `Approved surf session`,
       txHash: log.transactionHash,
       blockNumber: Number(log.blockNumber),
+      sessionId: sessionHash,
       rawLog: log
     };
   }
@@ -478,11 +475,12 @@ async function parseSurfSessionFinalizedEvent(log: any, timestamp: Date): Promis
       id: `${log.transactionHash}-${log.logIndex}`,
       type: 'session_finalized',
       timestamp,
-      actor: 'System',
-      target: sessionHash.slice(0, 10) + '...',
+      actor: null,
+      target: sessionHash,
       details: `Session finalized - tokens minted to ${sessionInfo.surfers.length} participants`,
       txHash: log.transactionHash,
       blockNumber: Number(log.blockNumber),
+      sessionId: sessionHash,
       rawLog: log
     };
   } catch (error) {
@@ -491,11 +489,12 @@ async function parseSurfSessionFinalizedEvent(log: any, timestamp: Date): Promis
       id: `${log.transactionHash}-${log.logIndex}`,
       type: 'session_finalized',
       timestamp,
-      actor: 'System',
-      target: sessionHash.slice(0, 10) + '...',
+      actor: null,
+      target: sessionHash,
       details: `Session finalized - tokens minted to participants`,
       txHash: log.transactionHash,
       blockNumber: Number(log.blockNumber),
+      sessionId: sessionHash,
       rawLog: log
     };
   }

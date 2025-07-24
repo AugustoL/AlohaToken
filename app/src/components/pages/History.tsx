@@ -1,4 +1,5 @@
 import { useEffect, useState, useContext } from 'react';
+import { Link } from 'react-router-dom';
 import { AppContext } from '../../context/AppContextProvider';
 import { useNotify } from '../../hooks/useNotify';
 import Loading from '../common/Loading';
@@ -94,6 +95,10 @@ const History = () => {
     return typeMap[type] || type;
   };
 
+  const isSessionRelated = (type: HistoryAction['type']) => {
+    return ['session_added', 'session_approved_by_surfer', 'session_finalized'].includes(type);
+  };
+
   if (loading) {
     return <Loading />;
   }
@@ -139,11 +144,22 @@ const History = () => {
                 </span>
               </div>
               <div className="history-details">
-                <strong>{action.actor}</strong> {action.details}
-                {action.target && action.target !== action.actor && (
+                <strong>{action.actor?.alias}</strong> {action.details}
+                {action.target && action.target !== action.actor?.id && (
                   <span> → <strong>{action.target}</strong></span>
                 )}
               </div>
+              {isSessionRelated(action.type) && action.sessionId && (
+                <div className="history-actions">
+                  <Link 
+                    to={`/session/${action.sessionId}`} 
+                    className="btn btn-sm view-session-btn"
+                  >
+                    <WaveIcon />
+                    <span>View Session</span>
+                  </Link>
+                </div>
+              )}
               {action.txHash && (
                 <div className="history-tx">
                   <small>
